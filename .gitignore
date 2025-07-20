@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+ollama_log.txt
+public/img/
+start_ollama.bat
