@@ -4,6 +4,8 @@ import GoToChat from './components/GoToChat';
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import SliderFun from './components/sliderFun';
+import Characters from './components/Characters';
+import Locations from './components/Locations';
 export default function Home() {
   const articles = useSelector((state: RootState) => state.articles.articles);
 
@@ -31,6 +33,8 @@ export default function Home() {
         </div>
       </section>
       <SliderFun/>
+      <Characters/>
+      <Locations/>
 
       
     </div>
