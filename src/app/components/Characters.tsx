@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Character, FilterOptions } from '@/types/characters'; // Типы вынесены в отдельный файл
+import { Character, FilterOptions } from '@/types/characters';
 
 const Characters = () => {
   const [characters, setCharacters] = useState<Character[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<FilterOptions>({
     status: '',
@@ -44,72 +44,53 @@ const Characters = () => {
     setFilters(prev => ({ ...prev, [name]: value }));
   };
 
-  if (loading) return <div className="text-center py-8">Loading...</div>;
+  if (loading) return <div className="text-center py-8 text-white">Loading...</div>;
   if (error) return <div className="text-red-500 text-center py-8">Error: {error}</div>;
 
   return (
-    <section className="py-12 px-4 bg-gray-900 text-white">
-      <div className="container mx-auto">
-        <h2 className="text-4xl font-bold mb-8 text-center text-green-400">
-          Meet the Characters
+    <section className="py-12 px-6 bg-black text-white min-h-screen">
+      <div className="max-w-7xl mx-auto">
+        <h2 className="text-5xl font-extrabold mb-10 text-center text-[#ff099b] tracking-tight">
+          Characters Universe
         </h2>
 
-        <div className="flex flex-wrap gap-4 mb-8 justify-center">
-          <select
-            name="status"
-            onChange={handleFilterChange}
-            className="px-4 py-2 bg-gray-700 rounded-lg"
-          >
-            <option value="">All Statuses</option>
-            <option value="alive">Alive</option>
-            <option value="dead">Dead</option>
-            <option value="unknown">Unknown</option>
-          </select>
-
-          <select
-            name="species"
-            onChange={handleFilterChange}
-            className="px-4 py-2 bg-gray-700 rounded-lg"
-          >
-            <option value="">All Species</option>
-            <option value="human">Human</option>
-            <option value="alien">Alien</option>
-            <option value="robot">Robot</option>
-          </select>
-
-          <select
-            name="gender"
-            onChange={handleFilterChange}
-            className="px-4 py-2 bg-gray-700 rounded-lg"
-          >
-            <option value="">All Genders</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="genderless">Genderless</option>
-          </select>
+        <div className="flex flex-wrap justify-center gap-4 mb-10">
+          {['status', 'species', 'gender'].map((field) => (
+            <select
+              key={field}
+              name={field}
+              onChange={handleFilterChange}
+              className="relative bg-black/50 border border-pink-500/50 backdrop-blur-md text-white px-4 py-2 pr-10 rounded-lg hover:border-pink-500 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/40 transition-all duration-300 ease-in-out appearance-none bg-[url('data:image/svg+xml;utf8,<svg fill=%22%23ff099b%22 height=%2220%22 viewBox=%220 0 24 24%22 width=%2220%22 xmlns=%22http://www.w3.org/2000/svg%22><path d=%22M7 10l5 5 5-5z%22/></svg>')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:16px] hover:scale-105 focus:scale-105"
+            >
+              <option value="">All {field.charAt(0).toUpperCase() + field.slice(1)}</option>
+              {field === 'status' && ['alive', 'dead', 'unknown'].map(v => <option key={v} value={v} className="bg-gray-900 text-white">{v}</option>)}
+              {field === 'species' && ['human', 'alien', 'robot'].map(v => <option key={v} value={v} className="bg-gray-900 text-white">{v}</option>)}
+              {field === 'gender' && ['male', 'female', 'genderless'].map(v => <option key={v} value={v} className="bg-gray-900 text-white">{v}</option>)}
+            </select>
+          ))}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {characters.map(character => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+          {characters.map((character) => (
             <div
               key={character.id}
-              className="bg-gray-800 rounded-lg overflow-hidden hover:transform hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-green-400/30"
+              className="relative group bg-black/60 backdrop-blur-md border border-[#ff099b]/20 hover:border-[#ff099b]/60 rounded-xl overflow-hidden transition-shadow hover:shadow-[0_0_20px_#ff099baa]"
             >
               <img
                 src={character.image}
                 alt={character.name}
-                className="w-full h-48 object-cover"
+                className="w-full h-60 object-cover transition-transform duration-300 group-hover:scale-105"
               />
-              <div className="p-4">
-                <h3 className="text-xl font-bold mb-2">{character.name}</h3>
-                <p className="text-gray-400">
-                  <span className={`inline-block w-3 h-3 rounded-full mr-2 ${
-                    character.status === 'Alive' ? 'bg-green-500' :
-                    character.status === 'Dead' ? 'bg-red-500' : 'bg-yellow-500'
-                  }`}></span>
-                  {character.status} - {character.species}
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
+              <div className="relative p-4">
+                <h3 className="text-xl font-semibold text-[#ff099b]">{character.name}</h3>
+                <p className="text-gray-300 mt-1 text-sm">
+                  <span className={`inline-block w-3 h-3 rounded-full mr-2 ${character.status === 'Alive' ? 'bg-green-500' :
+                      character.status === 'Dead' ? 'bg-red-500' : 'bg-yellow-400'
+                    }`} />
+                  {character.status} — {character.species}
                 </p>
-                <p className="text-gray-400 mt-1">Last seen: {character.location.name}</p>
+                <p className="text-gray-400 mt-1 text-sm">Last seen: {character.location.name}</p>
               </div>
             </div>
           ))}

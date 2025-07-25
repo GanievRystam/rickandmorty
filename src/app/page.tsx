@@ -6,19 +6,20 @@ import { RootState } from "@/store";
 import SliderFun from './components/sliderFun';
 import Characters from './components/Characters';
 import Locations from './components/Locations';
+import QuizPlay from './components/QuizPlay';
 export default function Home() {
   const articles = useSelector((state: RootState) => state.articles.articles);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white overflow-x-hidden">
+    <div className="min-h-screen bg-[black] text-white overflow-x-hidden">
 
       <GoToChat/>
 
       {/* Слайдер статей */}
-      <section className="py-16 bg-gradient-to-b from-black/0 to-[#0a0f1a]/80">
+      <section className="py-16 bg-gradient-to-b from-black/0 bg-[black]">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold mb-8 text-[#42f5a7] flex items-center">
-            <span className="w-4 h-4 rounded-full bg-[#42f5a7] mr-3"></span>
+            <span className="w-4 h-4 rounded-full bg-[black] mr-3"></span>
             База знаний
           </h2>
 
@@ -34,6 +35,7 @@ export default function Home() {
       </section>
       <SliderFun/>
       <Characters/>
+      <QuizPlay/>
       <Locations/>
 
       

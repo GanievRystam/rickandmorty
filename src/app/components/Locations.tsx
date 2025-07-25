@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Location} from '@/types/locations'; // Общие типы
-import { FilterOptions } from '@/types/locations'; // Общие типы
+import { Location } from '@/types/locations';
+import { FilterOptions } from '@/types/locations';
 
 const Locations = () => {
   const [locations, setLocations] = useState<Location[]>([]);
@@ -11,7 +11,6 @@ const Locations = () => {
     dimension: '',
   });
 
-  // Загрузка локаций
   useEffect(() => {
     const fetchLocations = async () => {
       try {
@@ -39,28 +38,27 @@ const Locations = () => {
     fetchLocations();
   }, [filters]);
 
-  // Обработчик фильтров
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFilters(prev => ({ ...prev, [name]: value }));
   };
 
-  if (loading) return <div className="text-center py-8">Loading...</div>;
-  if (error) return <div className="text-red-500 text-center py-8">Error: {error}</div>;
+  if (loading) return <div className="text-center py-16 text-pink-400">Loading...</div>;
+  if (error) return <div className="text-red-500 text-center py-16">Error: {error}</div>;
 
   return (
-    <section className="py-12 px-4 bg-gray-900 text-white">
-      <div className="container mx-auto">
-        <h2 className="text-4xl font-bold mb-8 text-center text-purple-400">
+    <section className="py-16 px-4 bg-gray-950 text-white">
+      <div className="max-w-7xl mx-auto">
+        <h2 className="text-4xl font-extrabold mb-10 text-center bg-gradient-to-r from-pink-400 to-fuchsia-500 text-transparent bg-clip-text">
           Explore the Multiverse
         </h2>
 
-        {/* Фильтры */}
-        <div className="flex flex-wrap gap-4 mb-8 justify-center">
+        {/* Filters */}
+        <div className="flex flex-wrap gap-4 justify-center mb-12">
           <select
             name="type"
             onChange={handleFilterChange}
-            className="px-4 py-2 bg-gray-700 rounded-lg"
+            className="bg-gray-800 text-white border border-pink-500 px-4 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-400 transition"
           >
             <option value="">All Types</option>
             <option value="planet">Planet</option>
@@ -71,7 +69,7 @@ const Locations = () => {
           <select
             name="dimension"
             onChange={handleFilterChange}
-            className="px-4 py-2 bg-gray-700 rounded-lg"
+            className="bg-gray-800 text-white border border-pink-500 px-4 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-400 transition"
           >
             <option value="">All Dimensions</option>
             <option value="unknown">Unknown</option>
@@ -80,24 +78,26 @@ const Locations = () => {
           </select>
         </div>
 
-        {/* Сетка локаций */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {locations.map(location => (
             <div
               key={location.id}
-              className="bg-gray-800 rounded-lg overflow-hidden hover:transform hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-purple-400/30"
+              className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-[2px] rounded-2xl hover:scale-105 transition-transform duration-300"
             >
-              <div className="p-6">
-                <h3 className="text-xl font-bold mb-2">{location.name}</h3>
-                <p className="text-gray-400 mb-1">
-                  <span className="font-semibold text-purple-400">Type:</span> {location.type}
-                </p>
-                <p className="text-gray-400 mb-1">
-                  <span className="font-semibold text-purple-400">Dimension:</span> {location.dimension}
-                </p>
-                <p className="text-gray-400">
-                  <span className="font-semibold text-purple-400">Residents:</span> {location.residents.length}
-                </p>
+              <div className="bg-gray-900 rounded-2xl p-6 h-full flex flex-col justify-between">
+                <div>
+                  <h3 className="text-xl font-semibold text-white mb-3">{location.name}</h3>
+                  <p className="text-sm text-gray-400 mb-1">
+                    <span className="text-pink-400 font-medium">Type:</span> {location.type}
+                  </p>
+                  <p className="text-sm text-gray-400 mb-1">
+                    <span className="text-pink-400 font-medium">Dimension:</span> {location.dimension}
+                  </p>
+                  <p className="text-sm text-gray-400">
+                    <span className="text-pink-400 font-medium">Residents:</span> {location.residents.length}
+                  </p>
+                </div>
               </div>
             </div>
           ))}
