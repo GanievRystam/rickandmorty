@@ -1,17 +1,15 @@
 import type { Metadata } from 'next';
-import { Orbitron } from 'next/font/google'; // Импортируем нужный шрифт
+import { Share_Tech_Mono } from 'next/font/google'; // Импортируем Share Tech Mono
 import './globals.css';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ReduxProvider from "@/store/Provider";
 
-// Настройка Inter
-
-// Настройка Orbitron
-const orbitron = Orbitron({
+// Настройка Share Tech Mono
+const shareTechMono = Share_Tech_Mono({
   subsets: ['latin'],
-  weight: ['400', '700'], // Укажи нужные начертания
-  variable: '--font-orbitron', // Опционально: для использования в CSS-переменных
+  weight: '400',
+  variable: '--font-sharetechmono', // CSS переменная (по желанию)
 });
 
 export const metadata: Metadata = {
@@ -26,8 +24,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      {/* Добавляем класс шрифта в body или html */}
-      <body className={`${orbitron.variable} bg-gray-900`}>
+      <body className={`${shareTechMono.variable} font-mono bg-gray-900`}>
         <ReduxProvider>
           <Navbar />
           {children}

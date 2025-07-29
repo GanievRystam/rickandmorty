@@ -5,7 +5,7 @@ export default function Navbar() {
   return (
     <header className="absolute top-0 z-50 bg-transparent backdrop-blur-md border-b border-[#ff099b]/20 w-full">
       <div className="container mx-auto px-4 py-4 flex flex-col items-center relative">
-        <Link href="/" className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#ff099b] to-[#b362f5] mb-2">
+        <Link href="/" className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#ff099b] to-[#b362f5] mb-2 header-logo">
           PORTAL
         </Link>
         <nav className="hidden md:flex space-x-8 justify-center">
