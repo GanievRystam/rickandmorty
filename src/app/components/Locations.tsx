@@ -56,15 +56,29 @@ const Locations = () => {
         {/* Filters */}
         <div className="flex flex-wrap gap-4 justify-center mb-12">
           <select
-            name="type"
-            onChange={handleFilterChange}
-            className="bg-gray-800 text-white border border-pink-500 px-4 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-400 transition"
-          >
-            <option value="">All Types</option>
-            <option value="planet">Planet</option>
-            <option value="space station">Space Station</option>
-            <option value="dimension">Dimension</option>
-          </select>
+  name="type"
+  onChange={handleFilterChange}
+  className="
+    bg-gray-900/80 text-gray-100 
+    border-2 border-[#ff099b]/50 
+    px-4 py-2 pr-8 rounded-xl 
+    focus:outline-none focus:border-[#ff099b] focus:ring-2 focus:ring-[#ff099b]/30
+    transition-all duration-200
+    appearance-none
+    font-medium
+    shadow-lg shadow-[#ff099b]/10
+    hover:border-[#ff099b]/70
+    cursor-pointer
+    relative
+    backdrop-blur-sm
+  "
+>
+  <option value="" className="bg-gray-900">All Types</option>
+  <option value="planet" className="bg-gray-900">Planet</option>
+  <option value="space station" className="bg-gray-900">Space Station</option>
+  <option value="dimension" className="bg-gray-900">Dimension</option>
+</select>
+
 
           <select
             name="dimension"

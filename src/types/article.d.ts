@@ -1,4 +1,5 @@
 export interface Article {
+    headings?: any
     id: number
     title: string
     slug: string
