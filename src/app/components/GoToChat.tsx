@@ -5,11 +5,6 @@ import mainImg from '../../../public/rickandmorybg.png'
 export default function GoToChat() {
   return (
     <section className="relative py-24 bg-gray-900 overflow-hidden">
-      {/* Action GIF Background */}
-      {/* 
-        Использование backgroundImage с .mp4 не работает, потому что CSS background-image не поддерживает видео.
-        Для воспроизведения видео на фоне используйте тег <video> с нужными атрибутами.
-      */}
       <video
         className="absolute inset-0 w-full h-full object-cover"
         src="/rickandmordybg.mp4"

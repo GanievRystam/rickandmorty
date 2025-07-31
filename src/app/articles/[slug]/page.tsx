@@ -5,7 +5,8 @@ import ArticlesList from '@/app/components/ArticlesList'
 import './styles.css'
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const article = getArticleBySlug(params.slug)
+  const article = getArticleBySlug(params.slug);
+  console.log('article', article);
   if (!article) return {}
 
   return {
@@ -72,7 +73,7 @@ export default function ArticlePage({ params }: ArticlePageProps) {
       {/* Article Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative">
         {/* Floating sidebar for table of contents (optional) */}
-        <div className="hidden lg:block left-0 mb-4 w-full">
+        <div className="lg:block left-0 mb-4 w-full">
           <div className="sticky top-32 bg-gray-800/80 backdrop-blur-sm rounded-xl p-4 border border-[#ff099b]/20 shadow-lg">
             <h3 className="text-[#ff099b] font-bold">Содержание</h3>
             <ul className="space-y-2 text-sm">
