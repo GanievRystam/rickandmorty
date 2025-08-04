@@ -11,7 +11,9 @@ type Article = {
 };
 
 type ArticlesState = {
-  articles: Article[];
+  articles: Article[],
+  loading?: boolean,
+  error?: string | null
 };
 
 const initialState: ArticlesState = {

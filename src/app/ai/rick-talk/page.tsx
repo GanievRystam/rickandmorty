@@ -2,58 +2,73 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { addMessage, setLoading, selectMessages, selectIsLoading } from '@/store/chat/chatSlice'
 import './rickTalk.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { store } from '@/store';
 
 type Msg = { id: string; text: string; isUser: boolean; ts: number }
 
 export default function Chat() {
-  const [messages, setMessages] = useState<Msg[]>([])
+  const dispatch = useDispatch()
+  const messages = useSelector(selectMessages)
+  const isLoading = useSelector(selectIsLoading)
   const [input, setInput] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   async function sendMessage() {
-    if (!input.trim() || isLoading) return
-
-    setIsLoading(true)
-    const now = Date.now()
-    const userMessage: Msg = { id: String(now), text: input, isUser: true, ts: now }
-
-    setMessages(prev => [...prev, userMessage])
-    const payload = input
-    setInput('')
-
+    if (!input.trim() || isLoading) return;
+  
+    dispatch(setLoading(true));
+    const now = Date.now();
+    const userMessage = { 
+      id: String(now), 
+      text: input, 
+      isUser: true, 
+      ts: now 
+    };
+  
+    dispatch(addMessage(userMessage));
+    setInput('');
+  
     try {
+      // 1. Получаем текущие сообщения из хранилища
+      const currentMessages = store.getState().chat.messages;
+      
+      // 2. Формируем историю для API
+      const messageHistory = currentMessages.map(msg => ({
+        role: msg.isUser ? 'user' : 'assistant',
+        content: msg.text
+      }));
+  
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: [{ role: 'user', content: payload }] })
-      })
-
-      const data = await response.json()
-      if (data.error) throw new Error(data.details || 'Unknown error')
-      if (!data.content) throw new Error('Пустой ответ от сервера')
-
-      const botMessage: Msg = {
+        body: JSON.stringify({ 
+          messages: messageHistory // Отправляем всю историю
+        })
+      });
+  
+      const data = await response.json();
+      if (!data.content) throw new Error('Пустой ответ от сервера');
+  
+      const botMessage = {
         id: String(Date.now()),
         text: data.content,
         isUser: false,
         ts: Date.now()
-      }
-      setMessages(prev => [...prev, botMessage])
+      };
+      dispatch(addMessage(botMessage));
+  
     } catch (error: any) {
-      setMessages(prev => [
-        ...prev,
-        {
-          id: String(Date.now()),
-          text: `*отрыгивает* Ошибка: ${error.message}`,
-          isUser: false,
-          ts: Date.now()
-        }
-      ])
-      console.error('Chat error:', error)
+      dispatch(addMessage({
+        id: String(Date.now()),
+        text: `*отрыгивает* Ошибка: ${error.message}`,
+        isUser: false,
+        ts: Date.now()
+      }));
     } finally {
-      setIsLoading(false)
+      dispatch(setLoading(false));
     }
   }
 

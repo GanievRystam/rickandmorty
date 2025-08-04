@@ -1,18 +1,28 @@
 import { NextResponse } from 'next/server'
 
-export const runtime = 'edge' // Используем edge runtime для лучшей производительности
+export const runtime = 'edge'
+
+// Сохраняем историю переписки в памяти сервера (для демо)
+// В продакшене используйте базу данных
+const conversationHistory = new Map<string, any[]>()
 
 export async function POST(req: Request) {
   try {
-    const { messages } = await req.json()
+    const { messages, conversationId } = await req.json()
 
     // Промпт в стиле Рика Санчеза
     const systemPrompt = {
       role: "system",
-      content: `Ты — Рик Санчез из мультсериала "Рик и Морти". Отвечай максимально кратко (1-2 предложения),
-      с сарказмом и научным жаргоном. Обязательно используй "*отрыгивает*". Не объясняй ничего подробно.
-      Формат: [Сарказм] [Факт] *отрыгивает*`
+      content: `Ты — Рик Санчез. Отвечай кратко с сарказмом и научным жаргоном. *отрыгивает*`
     }
+
+    // Получаем или инициализируем историю для conversationId
+    if (!conversationHistory.has(conversationId)) {
+      conversationHistory.set(conversationId, [systemPrompt])
+    }
+
+    const history = conversationHistory.get(conversationId)!
+    const fullMessages = [...history, ...messages]
 
     const response = await fetch('http://localhost:11434/api/chat', {
       method: 'POST',
@@ -20,38 +30,36 @@ export async function POST(req: Request) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama3:8b-instruct-q4_0', // Используем 8B модель как оптимальную для CPU
-        messages: [systemPrompt, ...messages],
-        stream: false, // Отключаем потоковый режим для простоты
+        model: 'llama3:8b-instruct-q4_0',
+        messages: fullMessages,
+        stream: false,
         options: {
-          num_ctx: 512,  // Размер контекста
-          temperature: 0.7, // Креативность
-          num_predict: 50, // Максимальное количество токенов в ответе
-          seed: 5,        // Фиксированный seed для воспроизводимости
+          num_ctx: 2048,  // Увеличиваем контекст для истории
+          temperature: 0.7,
         }
-      }),
-      timeout: 30000 // 30 секунд таймаут
+      })
     })
 
-    if (!response.ok) {
-      const errorData = await response.json()
-      throw new Error(errorData.error || 'Ошибка Ollama API')
-    }
+    if (!response.ok) throw new Error('Ошибка Ollama API')
 
     const data = await response.json()
-    
+    const aiResponse = data.message?.content
+
+    // Сохраняем новые сообщения в историю
+    history.push(...messages, {
+      role: "assistant",
+      content: aiResponse
+    })
+
     return NextResponse.json({
-      content: data.message?.content || "*отрыгивает* Чёрт, Morty! Пустой ответ от AI..."
+      content: aiResponse,
+      conversationId // Возвращаем тот же ID для продолжения
     })
 
   } catch (error) {
-    console.error('Chat API error:', error)
+    console.error('Chat error:', error)
     return NextResponse.json(
-      { 
-        error: "Ошибка связи с мультивселенной", 
-        details: error.message,
-        solution: "Проверьте работает ли Ollama (ollama serve)"
-      },
+      { error: "*отрыгивает* Чёрт, Morty! Ошибка мультивселенной!" },
       { status: 500 }
     )
   }
