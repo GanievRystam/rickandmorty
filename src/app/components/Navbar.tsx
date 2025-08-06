@@ -13,7 +13,7 @@ export default function Navbar() {
           <Link href="/ai/rick-talk" className="text-white hover:text-[#ff099b] transition">Чат с Риком</Link>
           <Link href="/articles" className="text-white hover:text-[#ff099b] transition">Статьи</Link>
           <Link href="/arts" className="text-white hover:text-[#ff099b] transition">Фан Арты</Link>
-          <Link href="/arts" className="text-white hover:text-[#ff099b] transition">Персонаж</Link>
+          <Link href="/characters" className="text-white hover:text-[#ff099b] transition">Персонаж</Link>
           <Link href="/about" className="text-white hover:text-[#ff099b] transition">О проекте</Link>
         </nav>
         <button className="md:hidden text-2xl mt-2 absolute right-4 top-4">

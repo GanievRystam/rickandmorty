@@ -33,3 +33,28 @@ body {
 .portal-glow {
   animation: portal 3s infinite;
 }
+
+@keyframes float {
+  0% {
+    transform: translateY(0) translateX(0);
+  }
+  50% {
+    transform: translateY(-50px) translateX(20px);
+  }
+  100% {
+    transform: translateY(0) translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.portal-glow {
+  box-shadow: 0 0 15px rgba(255, 9, 155, 0.5);
+}
