@@ -10,12 +10,12 @@ export default function Navbar() {
            (path !== '/' && pathname.startsWith(path));
   };
   return (
-    <header className="absolute top-0 z-50 bg-transparent backdrop-blur-md border-b border-[#ff099b]/20 w-full">
+    <header className="2 absolute top-0 z-50 bg-transparent backdrop-blur-md border-b border-[#ff099b]/20 w-full">
       <div className="container mx-auto px-4 py-4 flex flex-col items-center relative">
         <Link href="/" className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#ff099b] to-[#b362f5] mb-2">
           PORTAL
         </Link>
-         <nav className="md:flex space-x-6 lg:space-x-8">
+         <nav className="flex flex-row space-x-2 max-[500px]:flex-col md:space-x-6 lg:space-x-8">
       <Link 
         href="/" 
         className={`relative px-2 py-1 text-sm font-medium transition-colors ${isActive('/') ? 'text-[#ff099b]' : 'text-white hover:text-[#ff099b]'}`}

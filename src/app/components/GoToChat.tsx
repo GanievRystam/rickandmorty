@@ -15,7 +15,7 @@ export default function GoToChat() {
         onEnded={e => { e.currentTarget.currentTime = 0}}
       />
       <div className="absolute inset-0 opacity-25 animate-pulse-slow"></div>
-      <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-start min-h-[70vh] relative z-10">
+      <div className="container mx-auto px-6 flex md:flex-row items-center justify-start min-h-[70vh] relative z-10">
         <div className="md:w-1/2 w-full flex flex-col items-start md:items-start text-left mb-16 md:mb-0">
           <h1 className="text-6xl sm:text-7xl md:text-9xl font-extrabold mb-6 text-[#ff099b]">
             PORTAL

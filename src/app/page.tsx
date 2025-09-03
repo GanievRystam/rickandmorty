@@ -18,7 +18,7 @@ export default function Home() {
       {/* Слайдер статей */}
       <section className="py-16 bg-gradient-to-b from-black/0 bg-[black]">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-8 text-[#42f5a7] flex items-center">
+          <h2 className="text-4xl font-extrabold mb-10 text-center text-[#ff099b] tracking-tight">
             <span className="w-4 h-4 rounded-full bg-[black] mr-3"></span>
             База знаний
           </h2>
