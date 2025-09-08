@@ -1,5 +1,7 @@
-import { FiSearch, FiChevronRight, FiFilter } from 'react-icons/fi'
+'use client';
+import { FiSearch, FiChevronRight, FiFilter, FiX } from 'react-icons/fi'
 import { FaRegSadTear, FaRegLaughSquint } from 'react-icons/fa'
+import { useState, useMemo } from 'react'
 
 export default function Characters() {
   // Моковые данные персонажей
@@ -86,6 +88,101 @@ export default function Characters() {
     }
   ]
 
+  // Состояния для фильтрации и поиска
+  const [searchQuery, setSearchQuery] = useState('')
+  const [activeFilters, setActiveFilters] = useState<string[]>(['Все'])
+  const [sortBy, setSortBy] = useState<'name' | 'episodes'>('name')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
+  const [showFilters, setShowFilters] = useState(false)
+
+  // Доступные фильтры
+  const filters = [
+    { id: 'Все', label: 'Все' },
+    { id: 'Главные герои', label: 'Главные герои' },
+    { id: 'Люди', label: 'Люди' },
+    { id: 'Инопланетяне', label: 'Инопланетяне' },
+    { id: 'Злодеи', label: 'Злодеи' },
+    { id: 'C-137', label: 'Из C-137' }
+  ]
+
+  // Функция для переключения фильтров
+  const toggleFilter = (filterId: string) => {
+    if (filterId === 'Все') {
+      setActiveFilters(['Все'])
+    } else {
+      setActiveFilters(prev => {
+        const newFilters = prev.filter(f => f !== 'Все')
+        if (newFilters.includes(filterId)) {
+          return newFilters.filter(f => f !== filterId)
+        } else {
+          return [...newFilters, filterId]
+        }
+      })
+    }
+  }
+
+  // Функция для очистки всех фильтров
+  const clearFilters = () => {
+    setActiveFilters(['Все'])
+    setSearchQuery('')
+  }
+
+  // Функция для сортировки
+  const toggleSort = (field: 'name' | 'episodes') => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortBy(field)
+      setSortOrder('asc')
+    }
+  }
+
+  // Фильтрация и сортировка персонажей
+  const filteredCharacters = useMemo(() => {
+    let result = characters.filter(character => {
+      // Поиск по имени
+      const matchesSearch = searchQuery === '' || 
+        character.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        character.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+
+      // Фильтрация по категориям
+      const matchesFilters = activeFilters.includes('Все') || 
+        activeFilters.some(filter => {
+          switch (filter) {
+            case 'Главные герои':
+              return character.tags.includes('главный герой')
+            case 'Люди':
+              return character.species === 'Человек'
+            case 'Инопланетяне':
+              return character.species !== 'Человек' && character.species !== 'Птичий человек'
+            case 'Злодеи':
+              return character.tags.includes('злодей')
+            case 'C-137':
+              return character.dimension === 'C-137'
+            default:
+              return true
+          }
+        })
+
+      return matchesSearch && matchesFilters
+    })
+
+    // Сортировка
+    result.sort((a, b) => {
+      if (sortBy === 'name') {
+        return sortOrder === 'asc' 
+          ? a.name.localeCompare(b.name)
+          : b.name.localeCompare(a.name)
+      } else {
+        return sortOrder === 'asc' 
+          ? a.episodes - b.episodes
+          : b.episodes - a.episodes
+      }
+    })
+
+    return result
+  }, [characters, searchQuery, activeFilters, sortBy, sortOrder])
+
   return (
     <div className="min-h-screen bg-gray-900 bg-[url('/img/character-bg-pattern.webp')] bg-fixed bg-cover">
       {/* Hero Section */}
@@ -111,16 +208,83 @@ export default function Characters() {
                   </div>
                   <input
                     type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Найти персонажа..."
-                    className="block w-full pl-10 pr-3 py-3 border border-[#ff099b]/30 bg-gray-800/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff099b] focus:border-transparent text-white placeholder-gray-400"
+                    className="block w-full pl-10 pr-10 py-3 border border-[#ff099b]/30 bg-gray-800/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff099b] focus:border-transparent text-white placeholder-gray-400"
                   />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-[#ff099b] transition-colors"
+                    >
+                      <FiX className="h-5 w-5 text-gray-400 hover:text-[#ff099b]" />
+                    </button>
+                  )}
                 </div>
-                <button className="px-4 py-3 bg-gray-800 hover:bg-gray-700 border border-[#42f5a7]/30 rounded-xl text-white flex items-center justify-center gap-2 transition">
+                <button 
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="px-4 py-3 bg-gray-800 hover:bg-gray-700 border border-[#42f5a7]/30 rounded-xl text-white flex items-center justify-center gap-2 transition"
+                >
                   <FiFilter className="text-[#42f5a7]" />
                   <span>Фильтры</span>
                 </button>
               </div>
+
+              {/* Панель сортировки */}
+              {showFilters && (
+                <div className="mt-4 p-4 bg-gray-800/80 rounded-xl border border-[#42f5a7]/30">
+                  <div className="flex flex-col sm:flex-row gap-4 items-center">
+                    <span className="text-white font-medium">Сортировать по:</span>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => toggleSort('name')}
+                        className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
+                          sortBy === 'name'
+                            ? 'bg-[#ff099b] text-white'
+                            : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                        }`}
+                      >
+                        Имя {sortBy === 'name' && (sortOrder === 'asc' ? '↑' : '↓')}
+                      </button>
+                      <button
+                        onClick={() => toggleSort('episodes')}
+                        className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
+                          sortBy === 'episodes'
+                            ? 'bg-[#ff099b] text-white'
+                            : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                        }`}
+                      >
+                        Эпизоды {sortBy === 'episodes' && (sortOrder === 'asc' ? '↑' : '↓')}
+                      </button>
+                    </div>
+                    {(searchQuery || activeFilters.length > 1 || activeFilters[0] !== 'Все') && (
+                      <button
+                        onClick={clearFilters}
+                        className="ml-auto px-3 py-2 bg-red-500/20 text-red-300 rounded-lg text-sm hover:bg-red-500/30 transition flex items-center gap-1"
+                      >
+                        <FiX className="h-4 w-4" />
+                        Очистить всё
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
+
+            {/* Статус фильтрации */}
+            {(searchQuery || activeFilters.length > 1 || activeFilters[0] !== 'Все') && (
+              <div className="mt-4">
+                <p className="text-gray-300">
+                  Найдено персонажей: <span className="text-[#ff099b] font-medium">{filteredCharacters.length}</span>
+                  {searchQuery && (
+                    <span className="ml-3">
+                      По запросу: <span className="text-[#42f5a7]">"{searchQuery}"</span>
+                    </span>
+                  )}
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -129,76 +293,86 @@ export default function Characters() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Filters Chips */}
         <div className="flex flex-wrap gap-3 mb-8">
-          <button className="px-4 py-2 bg-[#ff099b] text-white rounded-full text-sm font-bold flex items-center">
-            Все
-          </button>
-          <button className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-full text-sm font-medium transition flex items-center gap-1">
-            <span>Главные герои</span>
-          </button>
-          <button className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-full text-sm font-medium transition flex items-center gap-1">
-            <span>Люди</span>
-          </button>
-          <button className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-full text-sm font-medium transition flex items-center gap-1">
-            <span>Инопланетяне</span>
-          </button>
-          <button className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-full text-sm font-medium transition flex items-center gap-1">
-            <span>Злодеи</span>
-          </button>
-          <button className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-full text-sm font-medium transition flex items-center gap-1">
-            <span>Из C-137</span>
-          </button>
+          {filters.map(filter => (
+            <button
+              key={filter.id}
+              onClick={() => toggleFilter(filter.id)}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition flex items-center gap-1 ${
+                activeFilters.includes(filter.id)
+                  ? 'bg-[#ff099b] text-white'
+                  : 'bg-gray-800 hover:bg-gray-700 text-gray-300'
+              }`}
+            >
+              <span>{filter.label}</span>
+            </button>
+          ))}
         </div>
 
         {/* Characters Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {characters.map((character) => (
-            <div key={character.id} className="group relative bg-gray-800/60 backdrop-blur-sm rounded-xl overflow-hidden border border-[#42f5a7]/30 hover:border-[#ff099b] transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,9,155,0.3)]">
-              <div className="relative aspect-square overflow-hidden">
-                <img
-                  src={character.image}
-                  alt={character.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-                  <h3 className="text-white font-bold text-xl mb-1">{character.name}</h3>
-                  <p className="text-[#42f5a7] text-sm">{character.species} • {character.dimension}</p>
-                </div>
-                <div className="absolute top-3 right-3 bg-gray-900/80 text-white px-2 py-1 rounded-full text-xs font-medium">
-                  {character.episodes} эп.
-                </div>
-                {character.status === "Мёртв" ? (
-                  <div className="absolute top-3 left-3 bg-red-500/90 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center">
-                    <FaRegSadTear className="mr-1" /> {character.status}
+        {filteredCharacters.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {filteredCharacters.map((character) => (
+              <div key={character.id} className="group relative bg-gray-800/60 backdrop-blur-sm rounded-xl overflow-hidden border border-[#42f5a7]/30 hover:border-[#ff099b] transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,9,155,0.3)]">
+                {/* ... остальная разметка карточки персонажа ... */}
+                <div className="relative aspect-square overflow-hidden">
+                  <img
+                    src={character.image}
+                    alt={character.name}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+                    <h3 className="text-white font-bold text-xl mb-1">{character.name}</h3>
+                    <p className="text-[#42f5a7] text-sm">{character.species} • {character.dimension}</p>
                   </div>
-                ) : character.status === "Гений" ? (
-                  <div className="absolute top-3 left-3 bg-[#42f5a7]/90 text-gray-900 px-2 py-1 rounded-full text-xs font-medium flex items-center">
-                    <FaRegLaughSquint className="mr-1" /> {character.status}
+                  <div className="absolute top-3 right-3 bg-gray-900/80 text-white px-2 py-1 rounded-full text-xs font-medium">
+                    {character.episodes} эп.
                   </div>
-                ) : (
-                  <div className="absolute top-3 left-3 bg-green-500/90 text-white px-2 py-1 rounded-full text-xs font-medium">
-                    {character.status}
-                  </div>
-                )}
-              </div>
-              
-              <div className="p-4">
-                <h3 className="text-white font-bold text-lg mb-2">{character.name}</h3>
-                <div className="flex justify-between text-sm text-gray-400 mb-3">
-                  <span>{character.species}</span>
-                  <span>{character.dimension}</span>
+                  {character.status === "Мёртв" ? (
+                    <div className="absolute top-3 left-3 bg-red-500/90 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center">
+                      <FaRegSadTear className="mr-1" /> {character.status}
+                    </div>
+                  ) : character.status === "Гений" ? (
+                    <div className="absolute top-3 left-3 bg-[#42f5a7]/90 text-gray-900 px-2 py-1 rounded-full text-xs font-medium flex items-center">
+                      <FaRegLaughSquint className="mr-1" /> {character.status}
+                    </div>
+                  ) : (
+                    <div className="absolute top-3 left-3 bg-green-500/90 text-white px-2 py-1 rounded-full text-xs font-medium">
+                      {character.status}
+                    </div>
+                  )}
                 </div>
                 
-                <div className="flex flex-wrap gap-2">
-                  {character.tags.map(tag => (
-                    <span key={tag} className="px-2 py-1 bg-gray-700/50 text-gray-300 text-xs rounded-full hover:bg-[#ff099b]/20 hover:text-white transition">
-                      #{tag}
-                    </span>
-                  ))}
+                <div className="p-4">
+                  <h3 className="text-white font-bold text-lg mb-2">{character.name}</h3>
+                  <div className="flex justify-between text-sm text-gray-400 mb-3">
+                    <span>{character.species}</span>
+                    <span>{character.dimension}</span>
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-2">
+                    {character.tags.map(tag => (
+                      <span key={tag} className="px-2 py-1 bg-gray-700/50 text-gray-300 text-xs rounded-full hover:bg-[#ff099b]/20 hover:text-white transition">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16">
+            <div className="text-gray-400 text-xl mb-4">
+              Персонажи не найдены
             </div>
-          ))}
-        </div>
+            <button
+              onClick={clearFilters}
+              className="px-6 py-2 bg-[#ff099b] text-white rounded-full hover:bg-[#ff099b]/90 transition"
+            >
+              Сбросить фильтры
+            </button>
+          </div>
+        )}
 
         {/* Pagination */}
         <div className="mt-16 flex justify-center">

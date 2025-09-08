@@ -1,10 +1,33 @@
+'use client';
 import ArticlesList from '@/app/components/ArticlesList'
 import { getAllArticles } from '@/lib/articles'
-import { FiSearch, FiChevronRight } from 'react-icons/fi'
+import { FiSearch, FiChevronRight, FiX } from 'react-icons/fi'
+import { useState, useMemo } from 'react'
 
 export default function ArticlesPage() {
-  const articles = getAllArticles()
-  
+  const allArticles = getAllArticles()
+  const [searchQuery, setSearchQuery] = useState('')
+  const [activeCategory, setActiveCategory] = useState('Все')
+
+  // Фильтрация статей по поисковому запросу и категории
+  const filteredArticles = useMemo(() => {
+    return allArticles.filter(article => {
+      const matchesSearch = article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           article.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           article.content.toLowerCase().includes(searchQuery.toLowerCase())
+      
+      const matchesCategory = activeCategory === 'Все' || article.category === activeCategory
+      
+      return matchesSearch && matchesCategory
+    })
+  }, [allArticles, searchQuery, activeCategory])
+
+  const categories = ['Все', 'Наука', 'Персонажи', 'Технологии', 'Измерения']
+
+  const clearSearch = () => {
+    setSearchQuery('')
+  }
+
   return (
     <div className="min-h-screen bg-gray-900 bg-[url('/img/portal-bg-pattern.webp')] bg-fixed bg-cover">
       {/* Hero Section */}
@@ -28,10 +51,29 @@ export default function ArticlesPage() {
               </div>
               <input
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Найти статью..."
-                className="block w-full pl-10 pr-3 py-3 border border-[#ff099b]/30 bg-gray-800/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff099b] focus:border-transparent text-white placeholder-gray-400"
+                className="block w-full pl-10 pr-10 py-3 border border-[#ff099b]/30 bg-gray-800/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff099b] focus:border-transparent text-white placeholder-gray-400"
               />
+              {searchQuery && (
+                <button
+                  onClick={clearSearch}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-[#ff099b] transition-colors"
+                >
+                  <FiX className="h-5 w-5 text-gray-400 hover:text-[#ff099b]" />
+                </button>
+              )}
             </div>
+
+            {/* Search Results Count */}
+            {searchQuery && (
+              <div className="mt-4">
+                <p className="text-gray-300">
+                  Найдено статей: <span className="text-[#ff099b] font-medium">{filteredArticles.length}</span>
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -40,33 +82,49 @@ export default function ArticlesPage() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Categories Filter */}
         <div className="flex flex-wrap gap-3 mb-8">
-          <button className="px-4 py-2 bg-[#ff099b] text-white rounded-full text-sm font-medium">
-            Все
-          </button>
-          <button className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-full text-sm font-medium transition">
-            Наука
-          </button>
-          <button className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-full text-sm font-medium transition">
-            Персонажи
-          </button>
-          <button className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-full text-sm font-medium transition">
-            Технологии
-          </button>
-          <button className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-full text-sm font-medium transition">
-            Измерения
-          </button>
+          {categories.map(category => (
+            <button
+              key={category}
+              onClick={() => setActiveCategory(category)}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition ${
+                activeCategory === category
+                  ? 'bg-[#ff099b] text-white'
+                  : 'bg-gray-800 hover:bg-gray-700 text-gray-300'
+              }`}
+            >
+              {category}
+            </button>
+          ))}
         </div>
 
         {/* Articles Grid */}
-        <ArticlesList articles={articles}/>
+        {filteredArticles.length > 0 ? (
+          <ArticlesList articles={filteredArticles} />
+        ) : (
+          <div className="text-center py-12">
+            <div className="text-gray-400 text-lg mb-4">
+              {searchQuery ? 'Статьи по вашему запросу не найдены' : 'Статьи не найдены'}
+            </div>
+            {searchQuery && (
+              <button
+                onClick={clearSearch}
+                className="px-4 py-2 bg-[#ff099b] text-white rounded-full hover:bg-[#ff099b]/90 transition"
+              >
+                Очистить поиск
+              </button>
+            )}
+          </div>
+        )}
 
-        {/* View More Button */}
-        <div className="mt-12 text-center">
-          <button className="inline-flex items-center px-6 py-3 border border-[#ff099b] text-[#ff099b] rounded-full hover:bg-[#ff099b] hover:text-white transition-all duration-300 group">
-            Показать больше статей
-            <FiChevronRight className="ml-2 group-hover:translate-x-1 transition-transform" />
-          </button>
-        </div>
+        {/* View More Button (только если есть результаты и не активен поиск) */}
+        {filteredArticles.length > 0 && !searchQuery && (
+          <div className="mt-12 text-center">
+            <button className="inline-flex items-center px-6 py-3 border border-[#ff099b] text-[#ff099b] rounded-full hover:bg-[#ff099b] hover:text-white transition-all duration-300 group">
+              Показать больше статей
+              <FiChevronRight className="ml-2 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Floating Particles Effect */}
